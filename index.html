@@ -1,0 +1,506 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="theme-color" content="#102c26">
+<title>Ем по плану</title>
+<style>
+*{box-sizing:border-box}
+body{margin:0;background:#f5f5ef;color:#142b25;font:15px -apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}
+button,input,select{font:inherit}
+button{cursor:pointer}
+.shell{max-width:760px;margin:auto;padding:0 16px 70px}
+.hero{background:linear-gradient(135deg,#102c26,#226c50);color:white;padding:32px 22px;border-radius:0 0 30px 30px;margin:0 -16px 20px}
+.brand{font-weight:800;letter-spacing:.5px}
+.brand span{color:#bff2a5}
+h1{font-size:35px;line-height:1.08;margin:24px 0 10px}
+.hero p{color:#d4e7d9;line-height:1.5}
+.tag{display:inline-block;background:#ffffff24;border-radius:30px;padding:9px 12px;font-size:12px}
+.card{background:white;border:1px solid #e5e9df;border-radius:23px;padding:20px;margin:14px 0;box-shadow:0 7px 24px #0f38200a}
+h2{font-size:23px;margin:0 0 8px}
+h3{font-size:17px;margin:20px 0 10px}
+.sub{color:#728078;line-height:1.5}
+.field{margin:16px 0}
+label{display:block;font-weight:700;margin-bottom:7px}
+input,select{width:100%;min-height:48px;padding:12px;border:1px solid #dce5dc;border-radius:13px;background:#fafbf8;color:#183328;font-size:16px}
+.two,.choices,.metrics{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.choice{border:1.5px solid #e1e9e0;border-radius:14px;padding:13px 8px;background:#fbfcf9;color:#254236;font-weight:650;min-height:55px}
+.choice.on,.food.on{border-color:#188a57;background:#e8f7eb;box-shadow:inset 0 0 0 1px #188a57}
+.foodgrid{display:grid;grid-template-columns:repeat(3,1fr);gap:9px}
+.food{border:1.5px solid #e5e9e2;background:white;border-radius:16px;padding:10px 3px;min-height:105px;color:#183328;font-weight:650}
+.food .emoji{display:block;font-size:40px;margin-bottom:8px}
+.food small{font-size:12px}
+.btn{width:100%;border:0;border-radius:15px;padding:15px;background:#19794d;color:white;font-weight:800;font-size:16px;margin-top:12px;min-height:53px}
+.btn.alt{background:#e7f3e9;color:#176342}
+.btn.ghost{background:#f1f3ee;color:#375247}
+.hidden{display:none!important}
+.sectionlabel{font-size:12px;text-transform:uppercase;letter-spacing:1px;color:#6b8174;font-weight:800;margin-bottom:12px}
+.metric{background:#f2f7f0;border-radius:15px;padding:13px}
+.metric strong{display:block;font-size:22px;margin:4px 0}
+.metric small{color:#6e8072}
+.notice{background:#fff3d8;color:#765a1e;border-radius:13px;padding:12px;font-size:12px;line-height:1.5;margin:12px 0}
+.hint{font-size:12px;color:#738078;line-height:1.5}
+.mealchoices{display:grid;grid-template-columns:repeat(3,1fr);gap:7px}
+.mealchoices .choice{font-size:13px;padding:12px 4px}
+.day{border-top:1px solid #e9eee6;padding:12px 0}
+.meal{background:#f8faf6;border-radius:14px;padding:12px;margin:9px 0}
+.meal b{display:block}
+.meal small{display:block;color:#687a6e;margin:7px 0}
+.meal button{border:0;background:#e5f2e7;color:#20633e;padding:9px 12px;border-radius:10px;font-weight:700}
+.line{display:flex;justify-content:space-between;gap:10px;border-bottom:1px solid #edf0ea;padding:11px 0}
+.line span{max-width:65%}
+.line small{display:block;color:#748277}
+.bar{height:10px;background:#e8eee8;border-radius:15px;overflow:hidden;margin:12px 0}
+.bar div{height:100%;background:#278f5b}
+.progress{display:flex;gap:6px;margin:18px 0}
+.progress i{height:5px;border-radius:20px;background:#dce5d8;flex:1}
+.progress i.on{background:#3a9b69}
+.footer{text-align:center;color:#8a968d;font-size:12px;margin-top:22px}
+.topline{display:flex;align-items:center;justify-content:space-between}
+.back{border:0;background:none;color:#1e7550;font-weight:800}
+.error{color:#b33930;font-weight:700}
+.range{accent-color:#19794d}
+</style>
+</head>
+<body>
+<main class="shell">
+<header class="hero">
+<div class="brand">ЕМ <span>ПО ПЛАНУ</span> <span style="float:right">● beta 0.3</span></div>
+<h1>Питайся лучше.<br>Трать разумнее.</h1>
+<p>Твой рацион, твои цели, твой бюджет. Соберём меню и список покупок.</p>
+<span class="tag">🥗 Персональный рацион · 🛒 Умная корзина</span>
+</header>
+
+<div class="progress" id="progress"><i class="on"></i><i></i><i></i><i></i></div>
+
+<section id="step1" class="card step">
+<div class="sectionlabel">Шаг 1 из 4 · Цель</div>
+<h2>Какую задачу решаем?</h2>
+<p class="sub">Выбери главную цель питания.</p>
+<div id="goals" class="choices">
+<button class="choice on" data-goal="economy">💰 Экономия</button>
+<button class="choice" data-goal="family">👨‍👩‍👧‍👦 Для семьи</button>
+<button class="choice" data-goal="loss">📉 Снижение веса</button>
+<button class="choice" data-goal="maintain">⚖️ Поддержание</button>
+<button class="choice" data-goal="gain">💪 Набор массы</button>
+</div>
+<button class="btn" onclick="show(2)">Продолжить →</button>
+</section>
+
+<section id="step2" class="card step hidden">
+<div class="sectionlabel">Шаг 2 из 4 · Параметры</div>
+<h2>Немного о тебе</h2>
+<p class="sub">Эти данные помогут оценить суточную потребность в энергии.</p>
+<div class="field"><label>Пол для расчётной формулы</label>
+<select id="sex"><option value="male">Мужской</option><option value="female">Женский</option><option value="none">Не указывать</option></select></div>
+<div class="two">
+<div class="field"><label>Возраст</label><input id="age" type="number" value="30" min="18" max="100"></div>
+<div class="field"><label>Рост, см</label><input id="height" type="number" value="175" min="120" max="230"></div>
+<div class="field"><label>Вес, кг</label><input id="weight" type="number" value="80" min="30" max="300"></div>
+<div class="field"><label>Талия, см</label><input id="waist" type="number" placeholder="На уровне пупка"></div>
+<div class="field"><label>Шея, см</label><input id="neck" type="number" placeholder="Необязательно"></div>
+<div class="field"><label>Бёдра, см</label><input id="hips" type="number" placeholder="Необязательно"></div>
+</div>
+<div class="field"><label>Активность</label>
+<select id="activity">
+<option value="1.2">Низкая · сидячий образ жизни</option>
+<option value="1.375">Лёгкая · 1–3 тренировки</option>
+<option value="1.55" selected>Средняя · 3–5 тренировок</option>
+<option value="1.725">Высокая · 6–7 тренировок</option>
+</select></div>
+<div id="anthro" class="metrics"></div>
+<p class="hint">ИМТ не измеряет состав тела. Оценка процента жира по окружностям имеет значительную погрешность.</p>
+<div class="two"><button class="btn alt" onclick="show(1)">← Назад</button><button class="btn" id="next2">Далее →</button></div>
+</section>
+
+<section id="step3" class="card step hidden">
+<div class="sectionlabel">Шаг 3 из 4 · Бюджет</div>
+<h2>Планируем покупки</h2>
+<div class="field"><label>Магазин</label>
+<select id="store"><option>Магнит</option><option>Пятёрочка</option><option>Лента</option><option>Перекрёсток</option><option>Другой магазин</option></select></div>
+<div class="two">
+<div class="field"><label>Бюджет, ₽</label><input id="budget" type="number" value="4500" min="500"></div>
+<div class="field"><label>Человек</label><input id="people" type="number" value="1" min="1" max="10"></div>
+<div class="field"><label>Период</label><select id="days"><option value="3">3 дня</option><option value="5">5 дней</option><option value="7" selected>7 дней</option></select></div>
+<div class="field"><label>Приёмов пищи</label><select id="meals"><option value="2">2</option><option value="3" selected>3</option></select></div>
+</div>
+<div id="mealSettings" class="hidden">
+<div class="field"><label>Выбери два приёма пищи</label>
+<div id="mealChoices" class="mealchoices">
+<button class="choice on" data-slot="breakfast">🌅 Завтрак</button>
+<button class="choice on" data-slot="lunch">☀️ Обед</button>
+<button class="choice" data-slot="dinner">🌙 Ужин</button>
+</div>
+<p class="hint">Выбери ровно два. Третий приём планируешь самостоятельно.</p></div>
+<div class="field">
+<label>Какую долю суточной нормы покрыть меню? <b id="shareValue">65%</b></label>
+<input id="share" class="range" type="range" min="30" max="90" step="5" value="65">
+</div>
+</div>
+<div class="two"><button class="btn alt" onclick="show(2)">← Назад</button><button class="btn" id="next3">Далее →</button></div>
+</section>
+
+<section id="step4" class="card step hidden">
+<div class="sectionlabel">Шаг 4 из 4 · Предпочтения</div>
+<h2>Что исключить?</h2>
+<p class="sub">Нажми на продукты, которые нельзя или не хочется есть.</p>
+<h3>⚠️ Аллергены и ограничения</h3>
+<div id="allergens" class="foodgrid"></div>
+<h3>🚫 Просто не люблю</h3>
+<div id="dislikes" class="foodgrid"></div>
+<div class="field"><label>Другие исключения через запятую</label><input id="customAvoid" placeholder="Например, грибы, лук"></div>
+<div class="notice">При пищевой аллергии проверяй состав и маркировку товаров. Прототип не проверяет следовые количества аллергенов.</div>
+<p id="err" class="error hidden"></p>
+<div class="two"><button class="btn alt" onclick="show(3)">← Назад</button><button class="btn" id="generate">Подобрать рацион ✨</button></div>
+</section>
+
+<section id="results" class="hidden">
+<div class="card">
+<div class="topline"><div><div class="sectionlabel">Твой результат</div><h2>Рацион готов 🥑</h2></div><button class="back" onclick="show(1)">Изменить</button></div>
+<div id="stats" class="metrics"></div>
+<div id="summary"></div>
+<div class="bar"><div id="budgetbar"></div></div>
+<p id="budgetnote" class="sub"></p>
+<div class="notice">Цены тестовые, не цены выбранного магазина. КБЖУ приблизительные. Меню пока не гарантирует соблюдение бюджета и полноценность питания.</div>
+</div>
+<div class="card"><h2>Меню по дням 🍽️</h2><div id="menu"></div></div>
+<div class="card"><h2>Список покупок 🛒</h2><div id="shopping"></div><button class="btn alt" id="copy">📋 Скопировать список</button></div>
+<button class="btn ghost" onclick="show(1)">← Изменить параметры</button>
+</section>
+<div class="footer">Ем по плану · прототип 0.3 · не медицинская рекомендация</div>
+</main>
+
+<script>
+"use strict";
+const $=id=>document.getElementById(id);
+const num=id=>Number($(id).value);
+const money=n=>Math.round(n).toLocaleString("ru-RU");
+const slots=["breakfast","lunch","dinner"];
+const names={breakfast:"Завтрак",lunch:"Обед",dinner:"Ужин"};
+let goal="economy",chosen=["breakfast","lunch"],selected=new Set(),current=[],cfg={};
+
+const P={
+oats:{name:"Овсяные хлопья",unit:"г",price:.16,k:3.7,p:.13,f:.07},
+milk:{name:"Молоко",unit:"мл",price:.12,k:.6,p:.032,f:.032},
+banana:{name:"Бананы",unit:"г",price:.15,k:.89,p:.011,f:.003},
+egg:{name:"Яйца",unit:"шт",price:13,k:75,p:6.3,f:5},
+bread:{name:"Хлеб",unit:"г",price:.14,k:2.5,p:.08,f:.03},
+rice:{name:"Рис",unit:"г",price:.14,k:3.5,p:.07,f:.01},
+chicken:{name:"Куриное филе",unit:"г",price:.42,k:1.2,p:.23,f:.025},
+carrot:{name:"Морковь",unit:"г",price:.07,k:.4,p:.009,f:.002},
+buckwheat:{name:"Гречка",unit:"г",price:.18,k:3.4,p:.13,f:.034},
+fish:{name:"Рыба",unit:"г",price:.4,k:1.1,p:.19,f:.035},
+potato:{name:"Картофель",unit:"г",price:.07,k:.77,p:.02,f:.001},
+cabbage:{name:"Капуста",unit:"г",price:.06,k:.25,p:.013,f:.001},
+pasta:{name:"Макароны",unit:"г",price:.12,k:3.5,p:.12,f:.015},
+beans:{name:"Фасоль консервированная",unit:"г",price:.19,k:1.05,p:.07,f:.005},
+cottage:{name:"Творог",unit:"г",price:.5,k:1.2,p:.17,f:.05},
+apple:{name:"Яблоки",unit:"г",price:.15,k:.52,p:.003,f:.002},
+yogurt:{name:"Йогурт натуральный",unit:"г",price:.32,k:.7,p:.05,f:.03},
+oil:{name:"Масло растительное",unit:"мл",price:.18,k:8.1,p:0,f:.9}
+};
+
+const R=[
+{name:"Овсянка с бананом",type:"breakfast",items:{oats:65,milk:180,banana:110}},
+{name:"Яйца с тостами",type:"breakfast",items:{egg:2,bread:90,carrot:80}},
+{name:"Творог с яблоком",type:"breakfast",items:{cottage:180,apple:150}},
+{name:"Рис с курицей и морковью",type:"main",items:{rice:90,chicken:170,carrot:130,oil:8}},
+{name:"Гречка с рыбой и капустой",type:"main",items:{buckwheat:90,fish:180,cabbage:150,oil:8}},
+{name:"Макароны с фасолью",type:"main",items:{pasta:95,beans:170,carrot:100,oil:8}},
+{name:"Картофель с курицей",type:"main",items:{potato:280,chicken:150,cabbage:150,oil:8}},
+{name:"Йогурт с яблоком",type:"breakfast",items:{yogurt:180,apple:160}},
+{name:"Банан с творогом",type:"breakfast",items:{banana:120,cottage:120}}
+];
+
+const groups=[
+["allergens",[
+["milk","🥛","Молоко"],["egg","🥚","Яйца"],["fish","🐟","Рыба"],
+["wheat","🌾","Глютен"],["nuts","🥜","Орехи"],["soy","🫘","Соя"]
+]],
+["dislikes",[
+["chicken","🍗","Курица"],["cottage","🥣","Творог"],
+["banana","🍌","Бананы"],["beans","🫘","Фасоль"],
+["cabbage","🥬","Капуста"],["oats","🥣","Овсянка"],
+["potato","🥔","Картофель"],["rice","🍚","Рис"],
+["pasta","🍝","Макароны"]
+]]
+];
+
+const exclusions={
+milk:["milk","yogurt","cottage"],
+egg:["egg"],fish:["fish"],
+wheat:["bread","pasta","oats"],
+nuts:[],soy:[],
+chicken:["chicken"],cottage:["cottage"],
+banana:["banana"],beans:["beans"],
+cabbage:["cabbage"],oats:["oats"],
+potato:["potato"],rice:["rice"],pasta:["pasta"]
+};
+
+for(const [id,items] of groups){
+$(id).innerHTML=items.map(([key,emoji,name])=>
+`<button type="button" class="food" data-food="${key}" aria-pressed="false"><span class="emoji">${emoji}</span><small>${name}</small></button>`).join("");
+}
+document.querySelectorAll("[data-food]").forEach(b=>{
+b.onclick=()=>{
+const k=b.dataset.food;
+selected.has(k)?selected.delete(k):selected.add(k);
+b.classList.toggle("on",selected.has(k));
+b.setAttribute("aria-pressed",String(selected.has(k)));
+};
+});
+
+$("goals").onclick=e=>{
+const b=e.target.closest("[data-goal]");
+if(!b)return;
+goal=b.dataset.goal;
+document.querySelectorAll("[data-goal]").forEach(x=>x.classList.toggle("on",x===b));
+};
+
+function show(n){
+document.querySelectorAll(".step").forEach((el,i)=>el.classList.toggle("hidden",i!==n-1));
+$("results").classList.add("hidden");
+$("progress").classList.remove("hidden");
+document.querySelectorAll("#progress i").forEach((el,i)=>el.classList.toggle("on",i<n));
+window.scrollTo(0,0);
+}
+
+function updateMeals(){
+const two=num("meals")===2;
+$("mealSettings").classList.toggle("hidden",!two);
+document.querySelectorAll("[data-slot]").forEach(b=>{
+b.classList.toggle("on",chosen.includes(b.dataset.slot));
+});
+}
+$("meals").onchange=updateMeals;
+document.querySelectorAll("[data-slot]").forEach(b=>{
+b.onclick=()=>{
+const k=b.dataset.slot;
+if(chosen.includes(k))return;
+chosen=[chosen[1],k].sort((a,b)=>slots.indexOf(a)-slots.indexOf(b));
+updateMeals();
+};
+});
+$("share").oninput=()=>$("shareValue").textContent=$("share").value+"%";
+updateMeals();
+
+function bodyValid(){
+return num("age")>=18&&num("age")<=100&&
+num("height")>=120&&num("height")<=230&&
+num("weight")>=30&&num("weight")<=300;
+}
+
+function bodyData(){
+if(!bodyValid())return null;
+const h=num("height"),w=num("weight"),age=num("age");
+const sex=$("sex").value;
+const bmi=w/(h/100)**2;
+const bmr=sex==="none"?null:10*w+6.25*h-5*age+(sex==="male"?5:-161);
+const tdee=bmr===null?null:Math.round(bmr*num("activity"));
+const waist=num("waist"),neck=num("neck"),hips=num("hips");
+let fat=null;
+if(sex==="male"&&waist>neck&&neck>0){
+const x=86.010*Math.log10((waist-neck)/2.54)-70.041*Math.log10(h/2.54)+36.76;
+if(x>2&&x<65)fat=x;
+}
+if(sex==="female"&&waist+hips>neck&&neck>0&&hips>0){
+const x=163.205*Math.log10((waist+hips-neck)/2.54)-97.684*Math.log10(h/2.54)-104.912;
+if(x>2&&x<70)fat=x;
+}
+return {bmi,bmr,tdee,fat};
+}
+
+function targets(a){
+if(!a||a.tdee===null)return null;
+const factor=goal==="loss"?.85:goal==="gain"?1.1:1;
+const energy=Math.round(a.tdee*factor);
+const protein=Math.round(num("weight")*(goal==="gain"||goal==="loss"?1.6:1.2));
+const fat=Math.round(energy*.28/9);
+const carbs=Math.max(0,Math.round((energy-protein*4-fat*9)/4));
+return {energy,protein,fat,carbs};
+}
+
+function updateBody(){
+const a=bodyData();
+$("anthro").innerHTML=a?`
+<div class="metric"><small>ИМТ</small><strong>${a.bmi.toFixed(1)}</strong><small>Не измеряет жир</small></div>
+<div class="metric"><small>Жир, грубая оценка</small><strong>${a.fat===null?"—":a.fat.toFixed(1)+"%"}</strong><small>${a.fat!==null&&a.fat<10?"Проверь замеры":"По окружностям"}</small></div>
+${a.tdee?`<div class="metric"><small>Поддержание веса</small><strong>${a.tdee}</strong><small>ккал/сутки</small></div>`:""}`:"";
+}
+["sex","age","height","weight","waist","neck","hips","activity"].forEach(id=>{
+$(id).addEventListener("input",updateBody);
+});
+updateBody();
+
+$("next2").onclick=()=>{
+if(!bodyValid()){alert("Проверь возраст, рост и вес");return;}
+show(3);
+};
+$("next3").onclick=()=>{
+if(num("budget")<500||!Number.isInteger(num("people"))||num("people")<1||num("people")>10){
+alert("Проверь бюджет и количество человек");return;
+}
+show(4);
+};
+
+function allowed(){
+const excluded=new Set();
+for(const k of selected)for(const x of exclusions[k]||[])excluded.add(x);
+const words=$("customAvoid").value.toLowerCase().split(",").map(x=>x.trim()).filter(Boolean);
+return R.filter(r=>!Object.keys(r.items).some(k=>
+excluded.has(k)||words.some(w=>P[k].name.toLowerCase().includes(w))
+));
+}
+
+function info(r){
+let cost=0,kcal=0,protein=0,fat=0;
+for(const [id,n] of Object.entries(r.items)){
+cost+=P[id].price*n;
+kcal+=P[id].k*n;
+protein+=P[id].p*n;
+fat+=P[id].f*n;
+}
+return {cost,kcal,protein,fat,carbs:Math.max(0,(kcal-protein*4-fat*9)/4)};
+}
+
+function scaled(r,factor){
+const items={};
+for(const [k,n] of Object.entries(r.items)){
+items[k]=Math.max(1,Math.round(n*factor));
+}
+return {name:r.name,type:r.type,items};
+}
+
+function poolFor(slot,recipes){
+const type=slot==="breakfast"?"breakfast":"main";
+const pool=recipes.filter(r=>r.type===type);
+return pool.length?pool:[];
+}
+
+function makeDay(d,recipes){
+const base=cfg.slots.map((slot,i)=>{
+const pool=poolFor(slot,recipes);
+if(!pool.length)throw Error("Не хватает блюд для выбранных приёмов пищи");
+return {slot,recipe:pool[(d+i)%pool.length]};
+});
+const kcal=base.reduce((s,x)=>s+info(x.recipe).kcal,0);
+const desired=cfg.target?cfg.target.energy*cfg.share:null;
+const factor=desired?Math.max(.65,Math.min(2.25,desired/kcal)):1;
+return base.map(x=>({slot:x.slot,recipe:scaled(x.recipe,factor)}));
+}
+
+function generate(){
+try{
+const recipes=allowed();
+cfg={
+store:$("store").value,
+budget:num("budget"),
+people:num("people"),
+days:num("days"),
+slots:num("meals")===2?[...chosen]:[...slots],
+share:num("meals")===2?num("share")/100:1,
+target:targets(bodyData())
+};
+if(!recipes.length)throw Error("Нет подходящих блюд. Уменьши количество исключений.");
+for(const slot of cfg.slots){
+if(!poolFor(slot,recipes).length)throw Error("Нет подходящих блюд для "+names[slot]+". Измени ограничения.");
+}
+current=Array.from({length:cfg.days},(_,d)=>makeDay(d,recipes));
+$("err").classList.add("hidden");
+render();
+document.querySelectorAll(".step").forEach(el=>el.classList.add("hidden"));
+$("progress").classList.add("hidden");
+$("results").classList.remove("hidden");
+window.scrollTo(0,0);
+}catch(e){
+$("err").textContent=e.message;
+$("err").classList.remove("hidden");
+}
+}
+$("generate").onclick=generate;
+
+function render(){
+let totals={},cost=0,kcal=0,protein=0,fat=0,html="";
+current.forEach((day,d)=>{
+html+=`<div class="day"><h3>День ${d+1}</h3>`;
+day.forEach(({slot,recipe:r},i)=>{
+const v=info(r);
+cost+=v.cost*cfg.people;
+kcal+=v.kcal;protein+=v.protein;fat+=v.fat;
+for(const [k,n] of Object.entries(r.items))totals[k]=(totals[k]||0)+n*cfg.people;
+html+=`<div class="meal"><b>${names[slot]} · ${r.name}</b>
+<small>${Math.round(v.kcal)} ккал · Б ${Math.round(v.protein)} г · Ж ${Math.round(v.fat)} г · У ${Math.round(v.carbs)} г · ≈ ${money(v.cost*cfg.people)} ₽</small>
+<details><summary>Состав и граммовки</summary><p class="hint">${Object.entries(r.items).map(([k,n])=>P[k].name+": "+n+" "+P[k].unit).join(", ")}</p></details>
+<button data-day="${d}" data-meal="${i}">🔄 Заменить блюдо</button></div>`;
+});
+html+="</div>";
+});
+$("menu").innerHTML=html;
+const rows=Object.entries(totals).sort((a,b)=>P[a[0]].name.localeCompare(P[b[0]].name,"ru"));
+$("shopping").innerHTML=rows.map(([k,n])=>
+`<div class="line"><span>${P[k].name}<small>${Math.round(n)} ${P[k].unit}</small></span><strong>≈ ${money(n*P[k].price)} ₽</strong></div>`).join("");
+
+const dayK=Math.round(kcal/cfg.days);
+const dayP=Math.round(protein/cfg.days);
+const dayF=Math.round(fat/cfg.days);
+const dayC=Math.max(0,Math.round((kcal-protein*4-fat*9)/4/cfg.days));
+const t=cfg.target;
+const two=cfg.slots.length===2;
+const metric=(label,value,sub)=>`<div class="metric"><small>${label}</small><strong>${value}</strong><small>${sub}</small></div>`;
+
+$("stats").innerHTML=
+metric("Стоимость меню",money(cost)+" ₽","За весь период")+
+metric("Бюджет",money(cfg.budget)+" ₽",cfg.days+" дней · "+cfg.people+" чел.")+
+metric("Калорийность меню",dayK,"ккал/день на человека")+
+metric("Белок в меню",dayP+" г","в день на человека")+
+(t?metric("Суточная цель",t.energy,"ккал/день")+
+metric(two?"Осталось добрать":"Разница с целью",two?Math.max(0,t.energy-dayK):Math.abs(t.energy-dayK),"ккал/день"):"");
+
+let summary=`<div class="line"><span>Магазин</span><strong>${cfg.store}</strong></div>
+<div class="line"><span>Приёмы пищи</span><strong>${cfg.slots.map(s=>names[s]).join(" + ")}</strong></div>`;
+
+if(t){
+summary+=`<div class="line"><span>Цель Б/Ж/У в день</span><strong>${t.protein}/${t.fat}/${t.carbs} г</strong></div>
+<div class="line"><span>Меню Б/Ж/У в день</span><strong>${dayP}/${dayF}/${dayC} г</strong></div>`;
+if(two)summary+=`<div class="line"><span>Осталось добрать Б/Ж/У</span><strong>${Math.max(0,t.protein-dayP)}/${Math.max(0,t.fat-dayF)}/${Math.max(0,t.carbs-dayC)} г</strong></div>
+<p class="hint">Выбрано ${Math.round(cfg.share*100)}% суточной энергии. Фактическое значение может отличаться.</p>`;
+}else summary+=`<p class="notice">Для расчёта суточной цели укажи пол для формулы.</p>`;
+
+const a=bodyData();
+if(a&&a.fat!==null){
+summary+=`<div class="line"><span>Жир по окружностям</span><strong>${a.fat.toFixed(1)}%</strong></div>`;
+if(a.fat<10)summary+=`<p class="notice">Очень низкая оценка жира. Проверь окружность талии на уровне пупка и шеи. Это не подтверждённый процент жира.</p>`;
+}
+$("summary").innerHTML=summary;
+$("budgetbar").style.width=Math.min(100,100*cost/cfg.budget)+"%";
+$("budgetbar").style.background=cost>cfg.budget?"#cf6745":"#278f5b";
+$("budgetnote").textContent=cost>cfg.budget?
+"По тестовым ценам меню превышает бюджет. Автоматическая оптимизация стоимости пока не реализована.":
+"По тестовым ценам меню укладывается в бюджет. Фактические цены могут отличаться.";
+
+document.querySelectorAll("[data-day]").forEach(b=>{
+b.onclick=()=>{
+const d=+b.dataset.day,i=+b.dataset.meal;
+const old=current[d][i];
+const pool=poolFor(old.slot,allowed()).filter(r=>r.name!==old.recipe.name);
+if(!pool.length){alert("Нет альтернатив для этого приёма пищи");return;}
+const r=pool[(d+i)%pool.length];
+const factor=Math.max(.65,Math.min(2.25,info(old.recipe).kcal/info(r).kcal));
+current[d][i]={slot:old.slot,recipe:scaled(r,factor)};
+render();
+};
+});
+
+$("copy").onclick=()=>{
+const text="Ем по плану — покупки\n"+rows.map(([k,n])=>
+P[k].name+": "+Math.round(n)+" "+P[k].unit).join("\n")+
+"\nТестовая стоимость: "+money(cost)+" ₽";
+if(navigator.clipboard&&navigator.clipboard.writeText){
+navigator.clipboard.writeText(text).then(()=>alert("Список скопирован")).catch(()=>prompt("Скопируй список",text));
+}else prompt("Скопируй список",text);
+};
+}
+</script>
+</body>
+</html>
